@@ -284,12 +284,13 @@ class VoiceCheckManager(private val context: Context) {
 
     private fun startTimeout() {
         cancelTimeout()
-        timeoutRunnable = Runnable {
+        val runnable = Runnable {
             Log.w(TAG, "⏰ Voice check timed out after ${LISTENING_TIMEOUT_MS / 1000}s")
             speechRecognizer?.stopListening()
             handleNoResponse()
         }
-        handler.postDelayed(timeoutRunnable!!, LISTENING_TIMEOUT_MS)
+        timeoutRunnable = runnable
+        handler.postDelayed(runnable, LISTENING_TIMEOUT_MS)
     }
 
     private fun cancelTimeout() {

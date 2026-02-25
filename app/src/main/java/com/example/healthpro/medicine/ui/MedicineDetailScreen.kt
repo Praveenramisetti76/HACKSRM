@@ -45,10 +45,11 @@ fun MedicineDetailScreen(
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().background(DarkNavy)) {
-        if (mws == null) {
+        val currentMws = mws
+        if (currentMws == null) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = MedBlue)
         } else {
-            val data = mws!!
+            val data = currentMws
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -168,9 +169,10 @@ fun MedicineDetailScreen(
         }
     }
 
-    if (showEditDialog && mws != null) {
+    val currentMwsForDialogs = mws
+    if (showEditDialog && currentMwsForDialogs != null) {
         AddEditMedicineDialog(
-            medicine = mws!!.medicine,
+            medicine = currentMwsForDialogs.medicine,
             onDismiss = { showEditDialog = false },
             onSave = { med ->
                 viewModel.updateMedicine(med)
@@ -179,8 +181,8 @@ fun MedicineDetailScreen(
         )
     }
 
-    if (showDeleteConfirm && mws != null) {
-        val medToDelete = mws!!.medicine
+    if (showDeleteConfirm && currentMwsForDialogs != null) {
+        val medToDelete = currentMwsForDialogs.medicine
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
             containerColor = CardDark,

@@ -9,12 +9,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.healthpro.mood.MoodCheckInDialog
 import com.example.healthpro.mood.MoodCheckInViewModel
 import com.example.healthpro.navigation.SahayNavGraph
+import com.example.healthpro.navigation.Screen
 import com.example.healthpro.safety.SafetyMonitoringService
 import com.example.healthpro.safety.SafetyMonitoringWorker
 import com.example.healthpro.safety.SafetyPreferences
+import com.example.healthpro.safety.VoiceSOSListenerService
 import com.example.healthpro.ui.theme.HealthProTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,6 +62,9 @@ class MainActivity : ComponentActivity() {
             SafetyMonitoringService.start(this)
             SafetyMonitoringWorker.schedule(this)
         }
+
+        // Start the always-listening voice SOS service
+        VoiceSOSListenerService.start(this)
     }
 
     override fun onResume() {

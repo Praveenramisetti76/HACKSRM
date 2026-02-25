@@ -165,7 +165,7 @@ fun HomeScreen(navController: NavController) {
                 gradientColors = listOf(HelpRed, Color(0xFFB91C1C)),
                 iconColor = Color.White,
                 labelColor = Color.White,
-                onClick = { navController.navigate(Screen.Emergency.route) }
+                onClick = { navController.navigate(Screen.Emergency.createRoute(false)) }
             )
             FeatureCard(
                 modifier = Modifier.weight(1f),

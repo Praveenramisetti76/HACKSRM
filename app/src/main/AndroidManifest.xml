@@ -23,6 +23,7 @@
     <!-- ═══ Safety Monitoring Service Permissions ═══ -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -111,6 +112,12 @@
             android:name=".safety.SafetyMonitoringService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
+
+        <!-- ═══ Voice SOS Always-Listening Service ═══ -->
+        <service
+            android:name=".safety.VoiceSOSListenerService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
 
         <!-- ═══ Mood Check-In Boot Receiver ═══ -->
         <receiver

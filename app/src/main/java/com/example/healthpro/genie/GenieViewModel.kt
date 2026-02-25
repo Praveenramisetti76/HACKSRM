@@ -9,11 +9,21 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import com.example.healthpro.safety.VoiceSOSListenerService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
+import com.example.healthpro.mood.MoodRepository
+import com.example.healthpro.mood.MoodType
+import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for Genie voice assistant.
@@ -24,10 +34,6 @@ import kotlinx.coroutines.launch
  * Uses SupervisorJob for coroutine cancellation safety.
  */
 class GenieViewModel(application: Application) : AndroidViewModel(application) {
-
-    companion object {
-        private const val TAG = "GenieVM"
-    }
 
     // ── State ────────────────────────────────────────────────
 
@@ -40,7 +46,8 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
         LAUNCHING,
         AUTOMATING,
         DONE,
-        ERROR
+        ERROR,
+        SOS_TRIGGERED         // Emergency detected
     }
 
     private val _state = MutableStateFlow(GenieState.IDLE)
@@ -72,16 +79,52 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
     private var speechRecognizer: SpeechRecognizer? = null
     private var automationCollectorJob: Job? = null
 
+    // Dependency injection (or simple instantiation here)
+    private val emergencyRepo = EmergencyDetectionRepository()
+    private val moodRepo = MoodRepository(application)
+    private val ttsRepository = ElevenLabsTTSRepository(application)
+    private var ttsJob: Job? = null
+
+    companion object {
+        private const val TAG = "GenieVM"
+        private const val VOICE_RACHEL = "21m00Tcm4TlvDq8ikWAM" // Neutral/Good
+        private const val VOICE_BELLA = "EXAVITQu4vr4xnSDxMaL"  // Soft/Calming
+    }
+
+    // Error handler for uncaught TTS network/decoding exceptions
+    private val errorHandler = CoroutineExceptionHandler { _, exception ->
+        Log.e(TAG, "Uncaught coroutine exception: ${exception.message}", exception)
+    }
+
     // ── Voice Recognition ────────────────────────────────────
+    private var isListening = false
 
     fun startListening() {
         val context = getApplication<Application>()
 
-        if (!SpeechRecognizer.isRecognitionAvailable(context)) {
-            _errorMessage.value = "Speech recognition is not available on this device."
+        // 1. Check permissions first
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            _errorMessage.value = "Microphone permission is required."
             _state.value = GenieState.ERROR
             return
         }
+
+        // 2. Prevent concurrent starts
+        if (isListening) {
+            Log.d(TAG, "Already listening, ignoring start request")
+            return
+        }
+
+        if (!SpeechRecognizer.isRecognitionAvailable(context)) {
+            _errorMessage.value = "Speech recognition is not available on this device."
+            _state.value = GenieState.ERROR
+            isListening = false
+            return
+        }
+
+        // 3. Stop background listener entirely to avoid Microphone conflict (ERROR_RECOGNIZER_BUSY)
+        Log.d(TAG, "Stopping VoiceSOSListenerService for Genie")
+        VoiceSOSListenerService.stop(context)
 
         _state.value = GenieState.LISTENING
         _recognizedText.value = ""
@@ -90,93 +133,214 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
         _failedStep.value = null
         _errorMessage.value = ""
         _statusText.value = "Listening..."
-
-        speechRecognizer?.destroy()
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
-            setRecognitionListener(object : RecognitionListener {
-                override fun onReadyForSpeech(params: Bundle?) {
-                    Log.d(TAG, "Ready for speech")
-                }
-
-                override fun onBeginningOfSpeech() {
-                    Log.d(TAG, "Speech started")
-                }
-
-                override fun onRmsChanged(rmsdB: Float) {
-                    // Could use for waveform visualization amplitude
-                }
-
-                override fun onBufferReceived(buffer: ByteArray?) {}
-
-                override fun onEndOfSpeech() {
-                    Log.d(TAG, "Speech ended")
-                    _statusText.value = "Processing..."
-                }
-
-                override fun onError(error: Int) {
-                    val message = when (error) {
-                        SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
-                        SpeechRecognizer.ERROR_CLIENT -> "Client error"
-                        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission required"
-                        SpeechRecognizer.ERROR_NETWORK -> "Network error"
-                        SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
-                        SpeechRecognizer.ERROR_NO_MATCH -> "Didn't catch that. Please try again."
-                        SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Recognizer busy"
-                        SpeechRecognizer.ERROR_SERVER -> "Server error"
-                        SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected. Please try again."
-                        else -> "Recognition error"
-                    }
-                    Log.w(TAG, "Speech error: $error - $message")
-                    _errorMessage.value = message
-                    _state.value = GenieState.ERROR
-                }
-
-                override fun onResults(results: Bundle?) {
-                    val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    val text = matches?.firstOrNull() ?: ""
-                    Log.d(TAG, "Recognized: $text")
-                    _recognizedText.value = text
-                    processRecognizedText(text)
-                }
-
-                override fun onPartialResults(partialResults: Bundle?) {
-                    val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    _partialText.value = matches?.firstOrNull() ?: ""
-                }
-
-                override fun onEvent(eventType: Int, params: Bundle?) {}
-            })
-
-            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN")
-                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+        
+        // Use a coroutine for mood greeting, then open mic
+        viewModelScope.launch(Dispatchers.Main) {
+            // 4. Determine mood and greet FIRST
+            val latestMood = moodRepo.getLatestMood()
+            val (voiceId, greeting) = when (latestMood) {
+                MoodType.NOT_GOOD, MoodType.UNWELL -> VOICE_BELLA to "I'm with you. Ready to help."
+                else -> VOICE_RACHEL to "Ready for your command."
             }
-            startListening(intent)
+
+            // Speak greeting and WAIT for it to finish before opening mic
+            _statusText.value = greeting
+            ttsJob?.cancel()
+            val greetingJob = launch(errorHandler) {
+                ttsRepository.play(greeting, voiceId)
+            }
+            
+            // Wait for greeting to finish
+            greetingJob.join()
+            delay(300) // Small breather after speech
+
+            // Bail out if user cancelled during greeting
+            if (_state.value != GenieState.LISTENING) {
+                Log.d(TAG, "State changed during greeting, aborting mic open")
+                return@launch
+            }
+
+            // NOW set isListening — after greeting is done
+            isListening = true
+            
+            cleanupRecognizer()
+            
+            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
+                setRecognitionListener(object : RecognitionListener {
+                    override fun onReadyForSpeech(params: Bundle?) {
+                        Log.d(TAG, "🟢 Ready for speech")
+                    }
+
+                    override fun onBeginningOfSpeech() {
+                        Log.d(TAG, "🎤 Speech started")
+                    }
+
+                    override fun onRmsChanged(rmsdB: Float) {}
+
+                    override fun onBufferReceived(buffer: ByteArray?) {}
+
+                    override fun onEndOfSpeech() {
+                        Log.d(TAG, "Speech ended")
+                        _statusText.value = "Processing..."
+                    }
+
+                    override fun onError(error: Int) {
+                        val message = when (error) {
+                            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
+                            SpeechRecognizer.ERROR_CLIENT -> "Internal error"
+                            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission required"
+                            SpeechRecognizer.ERROR_NETWORK -> "Network error"
+                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
+                            SpeechRecognizer.ERROR_NO_MATCH -> "Didn't catch that. Please try again."
+                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Microphone busy. Try again in a second."
+                            SpeechRecognizer.ERROR_SERVER -> "Server error"
+                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected. Please try again."
+                            else -> "Recognition error"
+                        }
+                        Log.e(TAG, "❌ Speech error: $error - $message")
+                        
+                        // Speak the error message (ended note)
+                        val shortError = if (error == SpeechRecognizer.ERROR_NO_MATCH) "I didn't catch that." else message
+                        ttsJob?.cancel()
+                        ttsJob = viewModelScope.launch(errorHandler) {
+                            val mood = moodRepo.getLatestMood()
+                            val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
+                            ttsRepository.play(shortError, voice)
+                        }
+                        
+                        // Restart background listener as we failed
+                        cleanupRecognizer()
+                        isListening = false
+                        VoiceSOSListenerService.start(context)
+                        
+                        _errorMessage.value = message
+                        _state.value = GenieState.ERROR
+                    }
+
+                    override fun onResults(results: Bundle?) {
+                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val text = matches?.firstOrNull() ?: ""
+                        Log.d(TAG, "✅ Recognized: $text")
+                        
+                        // Cleanup recognizer — do NOT restart background service here.
+                        // processRecognizedText() will restart it on the non-emergency path.
+                        cleanupRecognizer()
+                        isListening = false
+                        
+                        _recognizedText.value = text
+                        processRecognizedText(text)
+                    }
+
+                    override fun onPartialResults(partialResults: Bundle?) {
+                        val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        _partialText.value = matches?.firstOrNull() ?: ""
+                    }
+
+                    override fun onEvent(eventType: Int, params: Bundle?) {}
+                })
+
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN")
+                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+                }
+                
+                try {
+                    startListening(intent)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Fatal startListening exception: ${e.message}")
+                    _errorMessage.value = "Failed to start microphone."
+                    _state.value = GenieState.ERROR
+                    cleanupRecognizer()
+                    isListening = false
+                    VoiceSOSListenerService.start(context)
+                }
+            }
+        }
+    }        
+
+    private fun cleanupRecognizer() {
+        try {
+            speechRecognizer?.apply {
+                cancel()
+                destroy()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error cleaning recognizer: ${e.message}")
+        } finally {
+            speechRecognizer = null
         }
     }
 
     fun stopListening() {
-        speechRecognizer?.stopListening()
+        cleanupRecognizer()
+        isListening = false
+        VoiceSOSListenerService.start(getApplication())
     }
 
     // ── Intent Processing ────────────────────────────────────
 
     private fun processRecognizedText(text: String) {
+        val context = getApplication<Application>()
         _state.value = GenieState.PROCESSING
         _statusText.value = "Understanding your request..."
 
-        val intent = GenieIntentParser.parse(text)
-        if (intent != null) {
-            _parsedIntent.value = intent
-            _state.value = GenieState.CONFIRMING
-            _statusText.value = "Ready to confirm"
-        } else {
-            _errorMessage.value = "I couldn't understand that. Please try again with something like:\n" +
-                    "\"Order me a sandwich from Swiggy\" or\n" +
-                    "\"Buy a phone charger from Amazon\""
-            _state.value = GenieState.ERROR
+        // Launch a coroutine to check for emergencies first
+        viewModelScope.launch(errorHandler) {
+            val emergencyResult = emergencyRepo.checkEmergency(text)
+            
+            if (emergencyResult.trigger_sos && emergencyResult.confidence >= 70) {
+                // Intercept and trigger SOS
+                Log.w(TAG, "🚨 SOS Trigger Detected in voice command! Confidence: ${emergencyResult.confidence}")
+                
+                // Immediately cancel any TTS or ongoing automation securely
+                ttsJob?.cancel()
+                ttsRepository.stop()
+                cancelOrder()
+                
+                // Stop background listener to prevent duplicate SOS navigation
+                VoiceSOSListenerService.stop(context)
+                
+                _state.value = GenieState.SOS_TRIGGERED
+                _statusText.value = "Emergency detected. Activating SOS..."
+                return@launch
+            }
+            
+            // Not an emergency — safe to restart background listener now
+            VoiceSOSListenerService.start(context)
+            
+            // Not an emergency, proceed normally
+            val intent = GenieIntentParser.parse(text)
+            if (intent != null) {
+                _parsedIntent.value = intent
+                _state.value = GenieState.CONFIRMING
+                _statusText.value = "Ready to confirm"
+                
+                val reply = when (intent.type) {
+                    IntentType.FOOD -> "Preparing to order ${intent.item} from ${intent.platform.appName}."
+                    IntentType.PRODUCT -> "Adding ${intent.item} from ${intent.platform.appName} to your order."
+                    IntentType.MEDICINE -> "Setting up medicine order on ${intent.platform.appName}."
+                    else -> "Executing your request now."
+                }
+                ttsJob?.cancel()
+                ttsJob = launch(errorHandler) {
+                    val mood = moodRepo.getLatestMood()
+                    val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
+                    ttsRepository.play(reply, voice)
+                }
+            } else {
+                val errorMsg = "I couldn't understand that."
+                _errorMessage.value = "$errorMsg\n\nTry:\n\"Order me a sandwich from Swiggy\"\n\"Buy a charger from Amazon\""
+                _state.value = GenieState.ERROR
+                
+                ttsJob?.cancel()
+                ttsJob = launch(errorHandler) {
+                    val mood = moodRepo.getLatestMood()
+                    val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
+                    ttsRepository.play(errorMsg, voice)
+                }
+            }
         }
     }
 
@@ -246,8 +410,34 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        // Start automation!
-        startAutomation(intent, config)
+        // Play TTS confirmation before starting automation!
+        ttsJob?.cancel()
+        ttsJob = viewModelScope.launch(errorHandler) {
+            _state.value = GenieState.LAUNCHING
+            
+            val confirmationMsg = when (intent.type) {
+                IntentType.FOOD -> "Ordering ${intent.item} from ${intent.platform.appName}"
+                IntentType.PRODUCT -> "Ordering ${intent.item} from ${intent.platform.appName}"
+                IntentType.MEDICINE -> "Ordering medicine on ${intent.platform.appName}"
+                else -> "Executing your request"
+            }
+
+            _statusText.value = confirmationMsg
+            
+            // Stream and play audio confirmation (safely inside a cancellable Job)
+            try {
+                val mood = moodRepo.getLatestMood()
+                val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
+                ttsRepository.play(confirmationMsg, voice)
+            } catch (e: Exception) {
+                Log.e(TAG, "TTS play threw error: ${e.message}")
+            }
+            
+            // Short delay to allow audio to start cleanly before the UI transitions
+            kotlinx.coroutines.delay(1000)
+
+            startAutomation(intent, config)
+        }
     }
 
     private fun startAutomation(intent: GenieIntent, config: UiFlowConfig) {
@@ -334,6 +524,7 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
     // ── Actions ──────────────────────────────────────────────
 
     fun cancelOrder() {
+        Log.d(TAG, "Canceling current automation process")
         GenieAccessibilityService.instance?.cancelAutomation()
         automationCollectorJob?.cancel()
         reset()
@@ -373,6 +564,9 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun reset() {
+        // Stop any active TTS audio
+        ttsRepository.stop()
+        
         _state.value = GenieState.IDLE
         _recognizedText.value = ""
         _partialText.value = ""
@@ -388,8 +582,10 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
-        speechRecognizer?.destroy()
-        speechRecognizer = null
+        cleanupRecognizer()
+        VoiceSOSListenerService.start(getApplication())
+        ttsRepository.release()
         automationCollectorJob?.cancel()
+        ttsJob?.cancel()
     }
 }

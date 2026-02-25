@@ -20,8 +20,12 @@ data class SavedContact(
 
         fun fromJson(json: String): List<SavedContact> {
             if (json.isBlank()) return emptyList()
-            val type = object : TypeToken<List<SavedContact>>() {}.type
-            return gson.fromJson(json, type)
+            return try {
+                val type = object : TypeToken<List<SavedContact>>() {}.type
+                gson.fromJson(json, type) ?: emptyList()
+            } catch (e: Exception) {
+                emptyList()
+            }
         }
     }
 }

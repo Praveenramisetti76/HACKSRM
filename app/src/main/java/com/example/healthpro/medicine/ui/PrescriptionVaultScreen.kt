@@ -85,8 +85,8 @@ fun PrescriptionVaultScreen(
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
-        if (success && cameraUri != null) {
-            viewModel.storePrescription(cameraUri!!)
+        if (success) {
+            cameraUri?.let { viewModel.storePrescription(it) }
         }
     }
 

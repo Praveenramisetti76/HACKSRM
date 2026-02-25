@@ -70,15 +70,17 @@ fun MedicineScreenNew(navController: NavController) {
         }
 
         // Buy dialog
-        if (viewModel.showBuyDialog && viewModel.selectedMedicineForPurchase != null) {
-            BuyMedicineDialog(
-                medicine = viewModel.selectedMedicineForPurchase!!,
-                onDismiss = { viewModel.dismissPurchaseDialog() },
-                onSelectPharmacy = { pharmacy ->
-                    viewModel.buyMedicine(context, viewModel.selectedMedicineForPurchase!!, pharmacy)
-                    viewModel.dismissPurchaseDialog()
-                }
-            )
+        if (viewModel.showBuyDialog) {
+            viewModel.selectedMedicineForPurchase?.let { medicineToBuy ->
+                BuyMedicineDialog(
+                    medicine = medicineToBuy,
+                    onDismiss = { viewModel.dismissPurchaseDialog() },
+                    onSelectPharmacy = { pharmacy ->
+                        viewModel.buyMedicine(context, medicineToBuy, pharmacy)
+                        viewModel.dismissPurchaseDialog()
+                    }
+                )
+            }
         }
 
         // Add medicine dialog

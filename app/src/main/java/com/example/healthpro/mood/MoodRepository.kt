@@ -129,4 +129,16 @@ class MoodRepository(context: Context) {
      */
     private fun isLowMood(moodType: String): Boolean =
         moodType == MoodType.NOT_GOOD.name || moodType == MoodType.UNWELL.name
+
+    /**
+     * Get the latest saved mood entry.
+     */
+    suspend fun getLatestMood(): MoodType? {
+        val entity = moodDao.getLatestMood() ?: return null
+        return try {
+            MoodType.valueOf(entity.moodType)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
