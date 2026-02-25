@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import com.example.healthpro.genie.ElevenLabsTTSRepository
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -38,21 +39,31 @@ import kotlinx.coroutines.withContext
  */
 class MoodCheckInViewModel(application: Application) : AndroidViewModel(application) {
 
-    companion object {
-        private const val TAG = "MoodCheckInVM"
-        private const val CHANNEL_ID = "sahay_mood_alerts"
-        private const val CHANNEL_NAME = "Mood Pattern Alerts"
-        private const val NOTIF_ID_3DAY = 7301
-        private const val NOTIF_ID_7DAY = 7302
-    }
+
 
     private val repository = MoodRepository(application.applicationContext)
     private val contactsRepository = ContactsRepository(application.applicationContext)
     private val sosManager = SOSManager(application.applicationContext)
+    private val ttsRepository = ElevenLabsTTSRepository(application.applicationContext)
 
-    // ═══════════════════════════════════════════════════════════════
-    // STATE
-    // ═══════════════════════════════════════════════════════════════
+    // Voice IDs (same as GenieViewModel for consistency)
+    private companion object VoiceConstants {
+        const val TAG = "MoodCheckInVM"
+        const val CHANNEL_ID = "sahay_mood_alerts"
+        const val CHANNEL_NAME = "Mood Pattern Alerts"
+        const val NOTIF_ID_3DAY = 7301
+        const val NOTIF_ID_7DAY = 7302
+        const val VOICE_RACHEL = "21m00Tcm4TlvDq8ikWAM"
+        const val VOICE_BELLA  = "EXAVITQu4vr4xnSDxMaL"
+    }
+
+    /** Bundles voice config for destructuring. */
+    private data class VoiceGreeting(
+        val voiceId: String,
+        val stability: Double,
+        val similarityBoost: Double,
+        val text: String
+    )
 
     private val _showDialog = MutableStateFlow(false)
     val showDialog: StateFlow<Boolean> = _showDialog.asStateFlow()
@@ -106,6 +117,27 @@ class MoodCheckInViewModel(application: Application) : AndroidViewModel(applicat
             } finally {
                 _isProcessing.value = false
                 dismissDialog()
+            }
+
+            // Step 3: Play mood-appropriate voice greeting AFTER dialog dismisses
+            try {
+                val (voiceId, stability, similarity, greeting) = when (moodType) {
+                    MoodType.NOT_GOOD, MoodType.UNWELL -> VoiceGreeting(
+                        voiceId = VOICE_BELLA,
+                        stability = 0.90,
+                        similarityBoost = 0.30,
+                        text = "I'm here for you. Take it easy today."
+                    )
+                    else -> VoiceGreeting(
+                        voiceId = VOICE_RACHEL,
+                        stability = 0.65,
+                        similarityBoost = 0.60,
+                        text = "Good to see you. Let's get started."
+                    )
+                }
+                ttsRepository.play(greeting, voiceId, stability, similarity)
+            } catch (e: Exception) {
+                Log.e(TAG, "TTS greeting failed: ${e.message}")
             }
         }
     }
@@ -236,5 +268,10 @@ class MoodCheckInViewModel(application: Application) : AndroidViewModel(applicat
 
             Log.d(TAG, "🔔 Local notification shown: $title")
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        ttsRepository.release()
     }
 }

@@ -85,10 +85,38 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
     private val ttsRepository = ElevenLabsTTSRepository(application)
     private var ttsJob: Job? = null
 
+    /**
+     * Voice configuration — bundles voice ID + ElevenLabs tuning per mood.
+     */
+    private data class VoiceConfig(
+        val voiceId: String,
+        val stability: Double,
+        val similarityBoost: Double
+    )
+
     companion object {
         private const val TAG = "GenieVM"
         private const val VOICE_RACHEL = "21m00Tcm4TlvDq8ikWAM" // Neutral/Good
-        private const val VOICE_BELLA = "EXAVITQu4vr4xnSDxMaL"  // Soft/Calming
+        private const val VOICE_BELLA  = "EXAVITQu4vr4xnSDxMaL" // Soft/Calming
+    }
+
+    /**
+     * Returns the correct voice + settings based on the user's current mood.
+     *
+     * GOOD/OKAY  → Rachel, moderate stability, natural energy
+     * NOT_GOOD/UNWELL → Bella, high stability, ultra-soft & soothing
+     */
+    private fun getVoiceConfig(mood: MoodType?): VoiceConfig = when (mood) {
+        MoodType.NOT_GOOD, MoodType.UNWELL -> VoiceConfig(
+            voiceId = VOICE_BELLA,
+            stability = 0.90,         // Very calm, steady pacing
+            similarityBoost = 0.30    // Gentle, warm timbre
+        )
+        else -> VoiceConfig(
+            voiceId = VOICE_RACHEL,
+            stability = 0.65,         // Natural but composed
+            similarityBoost = 0.60    // Clear, slightly warm
+        )
     }
 
     // Error handler for uncaught TTS network/decoding exceptions
@@ -138,16 +166,17 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.Main) {
             // 4. Determine mood and greet FIRST
             val latestMood = moodRepo.getLatestMood()
-            val (voiceId, greeting) = when (latestMood) {
-                MoodType.NOT_GOOD, MoodType.UNWELL -> VOICE_BELLA to "I'm with you. Ready to help."
-                else -> VOICE_RACHEL to "Ready for your command."
+            val vc = getVoiceConfig(latestMood)
+            val greeting = when (latestMood) {
+                MoodType.NOT_GOOD, MoodType.UNWELL -> "I'm with you. Ready to help."
+                else -> "Ready for your command."
             }
 
             // Speak greeting and WAIT for it to finish before opening mic
             _statusText.value = greeting
             ttsJob?.cancel()
             val greetingJob = launch(errorHandler) {
-                ttsRepository.play(greeting, voiceId)
+                ttsRepository.play(greeting, vc.voiceId, vc.stability, vc.similarityBoost)
             }
             
             // Wait for greeting to finish
@@ -204,8 +233,8 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
                         ttsJob?.cancel()
                         ttsJob = viewModelScope.launch(errorHandler) {
                             val mood = moodRepo.getLatestMood()
-                            val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
-                            ttsRepository.play(shortError, voice)
+                            val vc = getVoiceConfig(mood)
+                            ttsRepository.play(shortError, vc.voiceId, vc.stability, vc.similarityBoost)
                         }
                         
                         // Restart background listener as we failed
@@ -326,8 +355,8 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
                 ttsJob?.cancel()
                 ttsJob = launch(errorHandler) {
                     val mood = moodRepo.getLatestMood()
-                    val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
-                    ttsRepository.play(reply, voice)
+                    val vc = getVoiceConfig(mood)
+                    ttsRepository.play(reply, vc.voiceId, vc.stability, vc.similarityBoost)
                 }
             } else {
                 val errorMsg = "I couldn't understand that."
@@ -337,8 +366,8 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
                 ttsJob?.cancel()
                 ttsJob = launch(errorHandler) {
                     val mood = moodRepo.getLatestMood()
-                    val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
-                    ttsRepository.play(errorMsg, voice)
+                    val vc = getVoiceConfig(mood)
+                    ttsRepository.play(errorMsg, vc.voiceId, vc.stability, vc.similarityBoost)
                 }
             }
         }
@@ -427,8 +456,8 @@ class GenieViewModel(application: Application) : AndroidViewModel(application) {
             // Stream and play audio confirmation (safely inside a cancellable Job)
             try {
                 val mood = moodRepo.getLatestMood()
-                val voice = if (mood == MoodType.NOT_GOOD || mood == MoodType.UNWELL) VOICE_BELLA else VOICE_RACHEL
-                ttsRepository.play(confirmationMsg, voice)
+                val vc = getVoiceConfig(mood)
+                ttsRepository.play(confirmationMsg, vc.voiceId, vc.stability, vc.similarityBoost)
             } catch (e: Exception) {
                 Log.e(TAG, "TTS play threw error: ${e.message}")
             }
