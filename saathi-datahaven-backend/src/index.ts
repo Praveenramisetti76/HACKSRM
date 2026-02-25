@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { initClients, getAddress } from './services/clientService.js';
 import { initMspService, getMspHealth, authenticateUser } from './services/mspService.js';
 import { createBucket, verifyBucketCreation, waitForBackendBucketReady } from './operations/bucketOps.js';
+import uploadRouter from './routes/upload.js';
 
 dotenv.config();
 
@@ -54,13 +55,27 @@ app.get('/health', (_req, res) => {
 app.get('/api/status', (_req, res) => {
     res.json({
         message: 'saathi-datahaven-backend is running',
-        phase: 2,
+        phase: 3,
         ready: isReady,
         bucketId: bucketId,
         bucketName: BUCKET_NAME,
         error: initError,
     });
 });
+
+// ─── Upload Route ──────────────────────────────────────
+app.use('/api', (req, res, next) => {
+    if (!isReady) {
+        res.status(503).json({
+            success: false,
+            error: 'Server is still initializing DataHaven connection. Try again in a moment.',
+        });
+        return;
+    }
+    // Pass server's bucketId via res.locals (works before multer parses body)
+    res.locals.serverBucketId = bucketId;
+    next();
+}, uploadRouter);
 
 // ─── Global Error Handler ──────────────────────────────
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -123,7 +138,8 @@ async function initializeDataHaven() {
 app.listen(PORT, () => {
     console.log(`\n🚀 saathi-datahaven-backend running on http://localhost:${PORT}`);
     console.log(`📋 Health:  GET http://localhost:${PORT}/health`);
-    console.log(`📋 Status:  GET http://localhost:${PORT}/api/status\n`);
+    console.log(`📋 Status:  GET http://localhost:${PORT}/api/status`);
+    console.log(`📤 Upload:  POST http://localhost:${PORT}/api/upload-prescription\n`);
 
     // Initialize DataHaven in the background (don't block Express)
     initializeDataHaven().catch((err) => {
