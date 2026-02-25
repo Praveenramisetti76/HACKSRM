@@ -3,6 +3,7 @@ import {
     type InfoResponse,
     MspClient,
     type UserInfo,
+    type ValueProp,
 } from '@storagehub-sdk/msp-client';
 import { type HttpClientConfig } from '@storagehub-sdk/core';
 import { getAddress, getWalletClient } from './clientService.js';
@@ -52,6 +53,17 @@ export async function authenticateUser(): Promise<UserInfo> {
 
     const profile: UserInfo = await mspClient.auth.getProfile();
     return profile;
+}
+
+// Retrieve MSP value propositions and select one for bucket creation
+export async function getValueProps(): Promise<`0x${string}`> {
+    const valueProps: ValueProp[] = await mspClient.info.getValuePropositions();
+    if (!Array.isArray(valueProps) || valueProps.length === 0) {
+        throw new Error('No value propositions available from MSP');
+    }
+    const valuePropId = valueProps[0].id as `0x${string}`;
+    console.log(`[MspService] Chose Value Prop ID: ${valuePropId}`);
+    return valuePropId;
 }
 
 export function getMspClient() { return mspClient; }
