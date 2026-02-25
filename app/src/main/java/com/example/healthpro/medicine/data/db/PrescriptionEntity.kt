@@ -13,5 +13,9 @@ data class PrescriptionEntity(
     val id: Long = 0,
     val imageUri: String,
     val dateAdded: Long = System.currentTimeMillis(),
-    val analyzed: Boolean = false
+    val analyzed: Boolean = false,
+    // DataHaven decentralized storage fields
+    val dataHavenFileKey: String? = null,
+    val dataHavenTxHash: String? = null,
+    val uploadedToDataHaven: Boolean = false
 )

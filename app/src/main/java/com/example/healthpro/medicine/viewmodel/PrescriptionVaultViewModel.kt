@@ -16,6 +16,7 @@ import com.example.healthpro.medicine.data.pharmacy.Tata1mgProvider
 import com.example.healthpro.medicine.ocr.MedicineParser
 import com.example.healthpro.medicine.ocr.OCRProcessor
 import com.example.healthpro.medicine.reminders.MedicineReminderScheduler
+import com.example.healthpro.medicine.datahaven.DataHavenUploader
 import com.example.healthpro.medicine.vault.WhatsAppHelper
 import com.example.healthpro.medicine.workers.DailyResetScheduler
 import com.example.healthpro.medicine.workers.MedicineStockScheduler
@@ -82,6 +83,14 @@ class PrescriptionVaultViewModel : ViewModel() {
     /** Camera URI for taking prescription photo */
     private val _cameraUri = MutableStateFlow<Uri?>(null)
     val cameraUri: StateFlow<Uri?> = _cameraUri.asStateFlow()
+
+    /** DataHaven upload status: "idle", "uploading", "success", "failed" */
+    private val _dataHavenStatus = MutableStateFlow("idle")
+    val dataHavenStatus: StateFlow<String> = _dataHavenStatus.asStateFlow()
+
+    /** DataHaven file key (returned after successful upload) */
+    private val _dataHavenFileKey = MutableStateFlow<String?>(null)
+    val dataHavenFileKey: StateFlow<String?> = _dataHavenFileKey.asStateFlow()
 
     data class ExtractedMedicine(
         val name: String,
@@ -234,7 +243,10 @@ class PrescriptionVaultViewModel : ViewModel() {
 
                 Log.d(TAG, "Extracted ${parsed.size} medicines from prescription")
 
-                // 4. Show purchase confirmation
+                // 4. Upload to DataHaven (background, non-blocking)
+                uploadToDataHaven(prescriptionId, permanentUri, "rx_${prescriptionId}.jpg")
+
+                // 5. Show purchase confirmation
                 _showPurchaseDialog.value = true
 
             } catch (e: Exception) {
@@ -243,6 +255,52 @@ class PrescriptionVaultViewModel : ViewModel() {
                 _showPurchaseDialog.value = true
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // DATAHAVEN UPLOAD (background, non-blocking)
+    // ═══════════════════════════════════════════
+
+    /**
+     * Upload prescription to DataHaven in the background.
+     * Does NOT block the main OCR/purchase flow.
+     * Updates the local DB record on success.
+     */
+    private fun uploadToDataHaven(prescriptionId: Long, imageUri: Uri, fileName: String) {
+        val ctx = appContext ?: return
+        _dataHavenStatus.value = "uploading"
+        _dataHavenFileKey.value = null
+
+        viewModelScope.launch {
+            try {
+                Log.d(TAG, "📤 Uploading to DataHaven: $fileName")
+                val response = DataHavenUploader.uploadPrescription(ctx, imageUri, fileName)
+
+                if (response.success && response.fileKey != null) {
+                    _dataHavenStatus.value = "success"
+                    _dataHavenFileKey.value = response.fileKey
+
+                    // Update local DB with DataHaven reference
+                    val existing = db?.prescriptionDao()?.getPrescriptionById(prescriptionId)
+                    if (existing != null) {
+                        db?.prescriptionDao()?.updatePrescription(
+                            existing.copy(
+                                dataHavenFileKey = response.fileKey,
+                                dataHavenTxHash = response.txHash,
+                                uploadedToDataHaven = true
+                            )
+                        )
+                    }
+                    Log.d(TAG, "✅ DataHaven upload success: fileKey=${response.fileKey}")
+                } else {
+                    _dataHavenStatus.value = "failed"
+                    Log.e(TAG, "❌ DataHaven upload failed: ${response.error}")
+                }
+            } catch (e: Exception) {
+                _dataHavenStatus.value = "failed"
+                Log.e(TAG, "❌ DataHaven upload error: ${e.message}", e)
             }
         }
     }

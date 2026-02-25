@@ -767,6 +767,13 @@ private fun PrescriptionListContent(
                                 fontSize = 13.sp,
                                 color = if (rx.analyzed) VaultGreen else VaultOrange
                             )
+                            if (rx.uploadedToDataHaven) {
+                                Text(
+                                    "🔗 Secured on DataHaven",
+                                    fontSize = 12.sp,
+                                    color = VaultTeal
+                                )
+                            }
                         }
                         IconButton(onClick = { onDelete(rx) }) {
                             Icon(
