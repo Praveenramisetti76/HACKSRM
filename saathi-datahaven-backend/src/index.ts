@@ -135,7 +135,7 @@ async function initializeDataHaven() {
 }
 
 // ─── Start Server ──────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`\n🚀 saathi-datahaven-backend running on http://localhost:${PORT}`);
     console.log(`📋 Health:  GET http://localhost:${PORT}/health`);
     console.log(`📋 Status:  GET http://localhost:${PORT}/api/status`);
