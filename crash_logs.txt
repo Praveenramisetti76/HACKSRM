@@ -1,0 +1,13 @@
+================================================================================
+ SAHAY — DataHaven Integration Crash Logs
+ Project: saathi-datahaven-backend + Android API Client
+ Created: 2026-02-25T23:58:30+05:30
+================================================================================
+
+Format:
+  [TIMESTAMP] [LAYER] [SEVERITY] — Description
+  LAYER:    BACKEND | ANDROID | SDK | NETWORK
+  SEVERITY: ERROR | WARN | INFO
+
+--- Logs Start Below ---
+

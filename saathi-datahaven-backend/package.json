@@ -1,0 +1,40 @@
+{
+  "name": "saathi-datahaven-backend",
+  "version": "1.0.0",
+  "description": "Minimal DataHaven backend for SAHAY prescription storage",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "datahaven",
+    "storagehub",
+    "prescription"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@polkadot/api": "^16.5.4",
+    "@polkadot/types": "^16.5.4",
+    "@polkadot/util-crypto": "^14.0.1",
+    "@storagehub-sdk/core": "^0.4.4",
+    "@storagehub-sdk/msp-client": "^0.4.4",
+    "@storagehub/api-augment": "^0.4.0",
+    "@storagehub/types-bundle": "^0.4.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "viem": "^2.46.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.3.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
