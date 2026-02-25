@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "configs": [
+    {
+      "platformId": "SWIGGY",
+      "version": 1,
+      "appName": "Swiggy",
+      "packageName": "in.swiggy.android",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 2000, "description": "Waiting for Swiggy to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening search...",
+          "selector": { "descriptionContains": "search", "alternateSelectors": [
+            { "textContains": "Search" }, { "resourceId": "search" }
+          ]}
+        },
+        {
+          "type": "type", "name": "type_query", "textKey": "QUERY", "timeoutMs": 5000, "description": "Typing search query...",
+          "selector": { "className": "android.widget.EditText" }
+        },
+        { "type": "ime", "name": "submit_search", "timeoutMs": 2000, "description": "Submitting search..." },
+        { "type": "delay", "name": "wait_results", "delayMs": 2500, "description": "Waiting for results..." },
+        {
+          "type": "click_first", "name": "select_result", "timeoutMs": 5000, "description": "Selecting first result...",
+          "selector": { "useFirstClickable": true }
+        },
+        { "type": "delay", "name": "wait_item", "delayMs": 1500, "description": "Loading item details..." },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to cart...",
+          "selector": { "textContains": "ADD", "alternateSelectors": [
+            { "textContains": "Add" }, { "descriptionContains": "add" }
+          ]}
+        },
+        { "type": "delay", "name": "wait_cart", "delayMs": 1500, "description": "Updating cart..." },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Checkout", "alternateSelectors": [
+            { "textContains": "View Cart" }, { "textContains": "Proceed" }, { "textContains": "cart" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Cart is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "ZOMATO",
+      "version": 1,
+      "appName": "Zomato",
+      "packageName": "com.application.zomato",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 2000, "description": "Waiting for Zomato to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening search...",
+          "selector": { "descriptionContains": "search", "alternateSelectors": [
+            { "textContains": "Search" }, { "textContains": "Restaurant" }
+          ]}
+        },
+        {
+          "type": "type", "name": "type_query", "textKey": "QUERY", "timeoutMs": 5000, "description": "Typing search query...",
+          "selector": { "className": "android.widget.EditText" }
+        },
+        { "type": "ime", "name": "submit_search", "timeoutMs": 2000, "description": "Submitting search..." },
+        { "type": "delay", "name": "wait_results", "delayMs": 2500, "description": "Waiting for results..." },
+        {
+          "type": "click_first", "name": "select_result", "timeoutMs": 5000, "description": "Selecting first result...",
+          "selector": { "useFirstClickable": true }
+        },
+        { "type": "delay", "name": "wait_item", "delayMs": 1500, "description": "Loading item..." },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to cart...",
+          "selector": { "textContains": "Add", "alternateSelectors": [
+            { "textContains": "ADD" }, { "textContains": "add item" }
+          ]}
+        },
+        { "type": "delay", "name": "wait_cart", "delayMs": 1500, "description": "Updating cart..." },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Checkout", "alternateSelectors": [
+            { "textContains": "View Cart" }, { "textContains": "Proceed" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Cart is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "DOMINOS",
+      "version": 1,
+      "appName": "Domino's",
+      "packageName": "com.dominos.android",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 3000, "description": "Waiting for Domino's to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening menu...",
+          "selector": { "textContains": "Menu", "alternateSelectors": [
+            { "textContains": "Order" }, { "descriptionContains": "search" }
+          ]}
+        },
+        { "type": "delay", "name": "wait_menu", "delayMs": 2000, "description": "Loading menu..." },
+        {
+          "type": "click_first", "name": "select_item", "timeoutMs": 5000, "description": "Selecting item...",
+          "selector": { "useFirstClickable": true }
+        },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to cart...",
+          "selector": { "textContains": "ADD", "alternateSelectors": [
+            { "textContains": "Add to Cart" }
+          ]}
+        },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Checkout", "alternateSelectors": [
+            { "textContains": "Cart" }, { "textContains": "Proceed" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Cart is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "MCDONALDS",
+      "version": 1,
+      "appName": "McDonald's",
+      "packageName": "com.mcdonalds.mobileapp",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 3000, "description": "Waiting for McDonald's to load..." },
+        {
+          "type": "click", "name": "tap_order", "timeoutMs": 8000, "description": "Opening menu...",
+          "selector": { "textContains": "Order", "alternateSelectors": [
+            { "textContains": "Menu" }
+          ]}
+        },
+        { "type": "delay", "name": "wait_menu", "delayMs": 2000, "description": "Loading menu..." },
+        {
+          "type": "click_first", "name": "select_item", "timeoutMs": 5000, "description": "Selecting item...",
+          "selector": { "useFirstClickable": true }
+        },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to order...",
+          "selector": { "textContains": "Add", "alternateSelectors": [
+            { "textContains": "ADD" }
+          ]}
+        },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Review Order", "alternateSelectors": [
+            { "textContains": "Cart" }, { "textContains": "Checkout" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Order is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "KFC",
+      "version": 1,
+      "appName": "KFC",
+      "packageName": "com.yum.kfcindia",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 3000, "description": "Waiting for KFC to load..." },
+        {
+          "type": "click", "name": "tap_menu", "timeoutMs": 8000, "description": "Opening menu...",
+          "selector": { "textContains": "Menu", "alternateSelectors": [
+            { "textContains": "Order" }
+          ]}
+        },
+        { "type": "delay", "name": "wait_menu", "delayMs": 2000, "description": "Loading menu..." },
+        {
+          "type": "click_first", "name": "select_item", "timeoutMs": 5000, "description": "Selecting item...",
+          "selector": { "useFirstClickable": true }
+        },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to cart...",
+          "selector": { "textContains": "Add", "alternateSelectors": [
+            { "textContains": "ADD" }
+          ]}
+        },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Checkout", "alternateSelectors": [
+            { "textContains": "Cart" }, { "textContains": "Proceed" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Cart is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "AMAZON",
+      "version": 1,
+      "appName": "Amazon",
+      "packageName": "in.amazon.mShop.android.shopping",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 2500, "description": "Waiting for Amazon to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening search...",
+          "selector": { "resourceId": "in.amazon.mShop.android.shopping:id/chrome_search_hint_view", "alternateSelectors": [
+            { "descriptionContains": "search" }, { "textContains": "Search Amazon" }
+          ]}
+        },
+        {
+          "type": "type", "name": "type_query", "textKey": "QUERY", "timeoutMs": 5000, "description": "Typing search query...",
+          "selector": { "className": "android.widget.EditText" }
+        },
+        { "type": "ime", "name": "submit_search", "timeoutMs": 2000, "description": "Submitting search..." },
+        { "type": "delay", "name": "wait_results", "delayMs": 3000, "description": "Waiting for results..." },
+        {
+          "type": "click_first", "name": "select_product", "timeoutMs": 5000, "description": "Selecting first product...",
+          "selector": { "useFirstClickable": true }
+        },
+        { "type": "delay", "name": "wait_product", "delayMs": 2000, "description": "Loading product page..." },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to cart...",
+          "selector": { "text": "Add to Cart", "alternateSelectors": [
+            { "textContains": "Add to Cart" }, { "descriptionContains": "Add to Cart" }
+          ]}
+        },
+        { "type": "delay", "name": "wait_added", "delayMs": 2000, "description": "Item added to cart..." },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Proceed", "alternateSelectors": [
+            { "textContains": "Cart" }, { "textContains": "Checkout" }, { "textContains": "Buy" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Cart is ready! Please review and complete your purchase." }
+      ]
+    },
+    {
+      "platformId": "FLIPKART",
+      "version": 1,
+      "appName": "Flipkart",
+      "packageName": "com.flipkart.android",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 2500, "description": "Waiting for Flipkart to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening search...",
+          "selector": { "descriptionContains": "search", "alternateSelectors": [
+            { "textContains": "Search" }
+          ]}
+        },
+        {
+          "type": "type", "name": "type_query", "textKey": "QUERY", "timeoutMs": 5000, "description": "Typing search query...",
+          "selector": { "className": "android.widget.EditText" }
+        },
+        { "type": "ime", "name": "submit_search", "timeoutMs": 2000, "description": "Submitting search..." },
+        { "type": "delay", "name": "wait_results", "delayMs": 3000, "description": "Waiting for results..." },
+        {
+          "type": "click_first", "name": "select_product", "timeoutMs": 5000, "description": "Selecting first product...",
+          "selector": { "useFirstClickable": true }
+        },
+        { "type": "delay", "name": "wait_product", "delayMs": 2000, "description": "Loading product page..." },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to cart...",
+          "selector": { "textContains": "Add to Cart", "alternateSelectors": [
+            { "textContains": "ADD TO CART" }, { "textContains": "Buy Now" }
+          ]}
+        },
+        { "type": "delay", "name": "wait_added", "delayMs": 2000, "description": "Item added..." },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Place Order", "alternateSelectors": [
+            { "textContains": "Checkout" }, { "textContains": "Cart" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Cart is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "MEESHO",
+      "version": 1,
+      "appName": "Meesho",
+      "packageName": "com.meesho.supply",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 2500, "description": "Waiting for Meesho to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening search...",
+          "selector": { "descriptionContains": "search", "alternateSelectors": [
+            { "textContains": "Search" }
+          ]}
+        },
+        {
+          "type": "type", "name": "type_query", "textKey": "QUERY", "timeoutMs": 5000, "description": "Typing search query...",
+          "selector": { "className": "android.widget.EditText" }
+        },
+        { "type": "ime", "name": "submit_search", "timeoutMs": 2000, "description": "Submitting search..." },
+        { "type": "delay", "name": "wait_results", "delayMs": 3000, "description": "Waiting for results..." },
+        {
+          "type": "click_first", "name": "select_product", "timeoutMs": 5000, "description": "Selecting first product...",
+          "selector": { "useFirstClickable": true }
+        },
+        {
+          "type": "click", "name": "add_to_cart", "timeoutMs": 8000, "description": "Adding to cart...",
+          "selector": { "textContains": "Add to Cart", "alternateSelectors": [
+            { "textContains": "Buy Now" }
+          ]}
+        },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Checkout", "alternateSelectors": [
+            { "textContains": "Cart" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Cart is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "MYNTRA",
+      "version": 1,
+      "appName": "Myntra",
+      "packageName": "com.myntra.android",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 2500, "description": "Waiting for Myntra to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening search...",
+          "selector": { "descriptionContains": "search", "alternateSelectors": [
+            { "textContains": "Search" }
+          ]}
+        },
+        {
+          "type": "type", "name": "type_query", "textKey": "QUERY", "timeoutMs": 5000, "description": "Typing search query...",
+          "selector": { "className": "android.widget.EditText" }
+        },
+        { "type": "ime", "name": "submit_search", "timeoutMs": 2000, "description": "Submitting search..." },
+        { "type": "delay", "name": "wait_results", "delayMs": 3000, "description": "Waiting for results..." },
+        {
+          "type": "click_first", "name": "select_product", "timeoutMs": 5000, "description": "Selecting first product...",
+          "selector": { "useFirstClickable": true }
+        },
+        {
+          "type": "click", "name": "add_to_bag", "timeoutMs": 8000, "description": "Adding to bag...",
+          "selector": { "textContains": "ADD TO BAG", "alternateSelectors": [
+            { "textContains": "Add to Bag" }, { "textContains": "BUY NOW" }
+          ]}
+        },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "PLACE ORDER", "alternateSelectors": [
+            { "textContains": "Checkout" }, { "textContains": "Bag" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Bag is ready! Please review and place your order." }
+      ]
+    },
+    {
+      "platformId": "AJIO",
+      "version": 1,
+      "appName": "Ajio",
+      "packageName": "com.ril.ajio",
+      "steps": [
+        { "type": "delay", "name": "wait_app_load", "delayMs": 2500, "description": "Waiting for Ajio to load..." },
+        {
+          "type": "click", "name": "tap_search", "timeoutMs": 8000, "description": "Opening search...",
+          "selector": { "descriptionContains": "search", "alternateSelectors": [
+            { "textContains": "Search" }
+          ]}
+        },
+        {
+          "type": "type", "name": "type_query", "textKey": "QUERY", "timeoutMs": 5000, "description": "Typing search query...",
+          "selector": { "className": "android.widget.EditText" }
+        },
+        { "type": "ime", "name": "submit_search", "timeoutMs": 2000, "description": "Submitting search..." },
+        { "type": "delay", "name": "wait_results", "delayMs": 3000, "description": "Waiting for results..." },
+        {
+          "type": "click_first", "name": "select_product", "timeoutMs": 5000, "description": "Selecting first product...",
+          "selector": { "useFirstClickable": true }
+        },
+        {
+          "type": "click", "name": "add_to_bag", "timeoutMs": 8000, "description": "Adding to bag...",
+          "selector": { "textContains": "Add to Bag", "alternateSelectors": [
+            { "textContains": "ADD TO BAG" }, { "textContains": "Buy Now" }
+          ]}
+        },
+        {
+          "type": "click", "name": "go_checkout", "timeoutMs": 8000, "description": "Opening checkout...",
+          "selector": { "textContains": "Checkout", "alternateSelectors": [
+            { "textContains": "Bag" }
+          ]}
+        },
+        { "type": "stop_payment", "name": "done", "description": "Bag is ready! Please review and place your order." }
+      ]
+    }
+  ]
+}

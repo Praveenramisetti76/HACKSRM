@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">HealthPro</string>
+    <string name="genie_accessibility_description">Genie uses accessibility to automate ordering in food, shopping, and medicine apps on your behalf. It searches for items, adds them to your cart, and navigates to checkout — but never completes a payment without your explicit tap.</string>
+</resources>

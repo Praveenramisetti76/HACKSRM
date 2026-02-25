@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Genie AccessibilityService configuration.
+
+    Event filtering: only necessary events for performance & battery.
+    - typeWindowStateChanged: detect screen transitions in target apps
+    - typeWindowContentChanged: detect UI updates (new results, cart changes)
+    - typeViewScrolled: detect scroll completion
+
+    NOT using typeAllMask to reduce noise.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewScrolled"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagIncludeNotImportantViews|flagReportViewIds"
+    android:canRetrieveWindowContent="true"
+    android:notificationTimeout="100"
+    android:description="@string/genie_accessibility_description"
+    android:settingsActivity="com.example.healthpro.MainActivity" />
