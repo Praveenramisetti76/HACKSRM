@@ -27,6 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.healthpro.ble.BleConnectionState
+import com.example.healthpro.ble.BleStateHolder
 import com.example.healthpro.navigation.Screen
 import com.example.healthpro.ui.theme.*
 import java.text.SimpleDateFormat
@@ -60,6 +62,15 @@ fun HomeScreen(navController: NavController) {
             .verticalScroll(scrollState)
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
+    // BLE connection state for status dot
+    val bleState by BleStateHolder.connectionState.collectAsState()
+    val bleDotColor = when (bleState) {
+        BleConnectionState.CONNECTED   -> Color(0xFF22C55E)   // green
+        BleConnectionState.SCANNING,
+        BleConnectionState.CONNECTING  -> Color(0xFFF59E0B)   // amber
+        else                           -> Color(0xFFEF4444)   // red
+    }
+
         // Status bar
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -73,7 +84,18 @@ fun HomeScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // BLE Nano status dot — tap goes to pairing screen
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(bleDotColor)
+                        .clickable { navController.navigate(Screen.BlePairing.route) }
+                )
                 Icon(Icons.Default.SignalCellularAlt, "Signal", tint = TextGray, modifier = Modifier.size(18.dp))
                 Icon(Icons.Default.Wifi, "WiFi", tint = TextGray, modifier = Modifier.size(18.dp))
                 Icon(Icons.Default.BatteryFull, "Battery", tint = TextGray, modifier = Modifier.size(18.dp))
@@ -174,6 +196,23 @@ fun HomeScreen(navController: NavController) {
                 gradientColors = listOf(TealAccent, Color(0xFF0E4434)),
                 onClick = { navController.navigate(Screen.Inactivity.route) }
             )
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Row 4: Fall Detector (BLE Wearable)
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            FeatureCard(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Default.MonitorHeart,
+                label = "Fall\nDetector",
+                gradientColors = listOf(Color(0xFFDC2626), Color(0xFF450A0A)),
+                iconColor = Color.White,
+                labelColor = Color.White,
+                onClick = { navController.navigate(Screen.BlePairing.route) }
+            )
+            // Empty placeholder to keep grid balanced
+            Spacer(modifier = Modifier.weight(1f))
         }
 
         Spacer(modifier = Modifier.height(24.dp))

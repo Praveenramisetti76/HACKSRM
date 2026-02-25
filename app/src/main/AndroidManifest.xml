@@ -31,6 +31,24 @@
     <!-- ═══ Prescription Vault: Camera Capture ═══ -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- ═══ BLE Fall Detection Permissions ═══ -->
+    <!-- API 31+ (Android 12+) fine-grained BLE permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"
+        tools:targetApi="s" />
+    <!-- Legacy BLE permissions for API < 31 -->
+    <uses-permission android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <!-- Required for foreground service of type connectedDevice (API 34+) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+    <!-- BLE hardware feature (required=false so app works on non-BLE devices) -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
     <!-- Specific app queries for Genie + WhatsApp + Pharmacies -->
     <queries>
         <!-- WhatsApp for video call / messaging -->
@@ -112,6 +130,12 @@
             android:name=".safety.SafetyMonitoringService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
+
+        <!-- ═══ BLE Fall Detection Foreground Service ═══ -->
+        <service
+            android:name=".ble.FallDetectionService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
 
         <!-- ═══ Mood Check-In Boot Receiver ═══ -->
         <receiver

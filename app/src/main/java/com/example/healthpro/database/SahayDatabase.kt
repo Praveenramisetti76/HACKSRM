@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.healthpro.database.FallEventDao
+import com.example.healthpro.database.FallEventEntity
 import com.example.healthpro.mood.MoodDao
 import com.example.healthpro.mood.MoodEntity
 
@@ -17,15 +19,17 @@ import com.example.healthpro.mood.MoodEntity
 @Database(
     entities = [
         MedicineEntity::class,
-        MoodEntity::class
+        MoodEntity::class,
+        FallEventEntity::class          // ← Phase 2: BLE fall detection
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class SahayDatabase : RoomDatabase() {
 
     abstract fun medicineDao(): MedicineDao
     abstract fun moodDao(): MoodDao
+    abstract fun fallEventDao(): FallEventDao
 
     companion object {
         @Volatile

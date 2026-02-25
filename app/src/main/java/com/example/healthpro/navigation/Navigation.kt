@@ -45,6 +45,7 @@ import com.example.healthpro.ui.theme.BottomBarDark
 import com.example.healthpro.ui.theme.DarkNavy
 import com.example.healthpro.ui.theme.TealAccent
 import com.example.healthpro.ui.theme.TextMuted
+import com.example.healthpro.ble.BleStateHolder
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -59,6 +60,9 @@ sealed class Screen(val route: String) {
     // ─── NEW ROUTES ───
 
     object Medicine : Screen("medicine")
+    // ─── BLE Fall Detection ───
+    object BlePairing : Screen("ble_pairing")
+    object FallAlert  : Screen("fall_alert")
     // ─── AUTH ROUTES ───
     object AuthEmail : Screen("auth_email")
     object AuthOtp : Screen("auth_otp")
@@ -90,6 +94,18 @@ fun SahayNavGraph() {
         Screen.Home.route
     } else {
         Screen.AuthEmail.route
+    }
+
+    // ─── Global FALL_DETECTED observer ───────────────────────────────────
+    // Listens to BleStateHolder from anywhere in the app and jumps straight
+    // to FallAlertScreen when the background FallDetectionService fires.
+    val fallAlertPending by BleStateHolder.fallAlertPending.collectAsState()
+    androidx.compose.runtime.LaunchedEffect(fallAlertPending) {
+        if (fallAlertPending) {
+            navController.navigate(Screen.FallAlert.route) {
+                launchSingleTop = true
+            }
+        }
     }
 
     // Auth screens should NOT show bottom bar
@@ -252,6 +268,13 @@ fun SahayNavGraph() {
                 composable("medicine_order_status/{medicineId}") { backStackEntry ->
                     val id = backStackEntry.arguments?.getString("medicineId")?.toLongOrNull() ?: 0L
                     OrderStatusScreen(navController = navController, medicineId = id)
+                }
+                // ─── BLE Fall Detection screens ───
+                composable(Screen.BlePairing.route) {
+                    BleDevicePairingScreen(navController = navController)
+                }
+                composable(Screen.FallAlert.route) {
+                    FallAlertScreen(navController = navController)
                 }
             }
         }
