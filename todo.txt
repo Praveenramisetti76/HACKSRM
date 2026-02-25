@@ -1,0 +1,142 @@
+1️⃣ Voice-Triggered SOS (Phrase-Based Emergency Activation)
+🔹 Feature
+
+If the elder says:
+
+“I need help”
+
+“Help me”
+
+“Emergency”
+
+“SOS”
+
+🔹 Implementation Flow
+
+Android SpeechRecognizer captures speech.
+
+Phrase detected locally (keyword match).
+
+SOS system triggers immediately.
+
+ElevenLabs generates:
+
+Calm confirmation voice:
+
+“I’ve alerted your family. Stay calm. Help is on the way.”
+
+🔹 Why ElevenLabs Here?
+
+Human-like tone reduces panic.
+
+Warm, reassuring voice during emergencies.
+
+Multilingual support for regional elders.
+
+⚠️ Important:
+Detection must remain local (no cloud dependency for trigger).
+ElevenLabs used only for response voice.
+
+2️⃣ Scam Detection via Call Analysis (Truecaller + ElevenLabs)
+🔹 Feature
+
+When receiving a call:
+
+Truecaller API checks:
+
+Spam probability
+
+Reported scam history
+
+If suspicious:
+
+ElevenLabs generates natural spoken warning:
+
+“This call may be fraudulent. Please be cautious before sharing any personal information.”
+
+🔹 Advanced Version (Optional)
+
+If user answers:
+
+Convert call audio (short snippet) → speech-to-text.
+
+Run scam keyword detection.
+
+ElevenLabs warns in real-time.
+
+🔹 Why ElevenLabs?
+
+Neutral but protective tone.
+
+Prevents robotic alert fatigue.
+
+Makes digital safety feel supportive, not alarming.
+
+3️⃣ Genie Voice Assistant Enhancement
+🔹 Current Genie
+
+Handles:
+
+Calls
+
+Medicine reminders
+
+Emotional check-ins
+
+Food ordering
+
+SOS
+
+🔹 With ElevenLabs
+
+Replace default TTS with:
+
+Natural conversational responses
+
+Personalized tone (warm grandchild-like voice)
+
+Language switching (Hindi / Telugu / Tamil / English)
+
+Example:
+Instead of robotic:
+“Medicine time.”
+
+ElevenLabs:
+
+“It’s time for your evening medicine. Let’s stay strong today.”
+
+🌟 Additional Features Where ElevenLabs Makes Strategic Sense
+
+Only where emotional tone matters.
+
+4️⃣ Emotional Check-In Voice
+
+At 7 PM:
+
+Instead of flat prompt:
+“How are you feeling today?”
+
+ElevenLabs:
+
+“How are you feeling today? I’m here with you.”
+
+Creates emotional warmth.
+
+5️⃣ Inactivity Confirmation
+
+Instead of robotic:
+“Are you okay?”
+
+ElevenLabs:
+
+“I haven’t heard from you in a while. Are you feeling alright?”
+
+Reduces stress response.
+
+6️⃣ Medicine Refill Reminder
+
+When stock is low:
+
+“You’re almost out of your blood pressure medicine. Should I help reorder it?”
+
+Feels assistive, not mechanical. all the features above given most of tehm are implemented but eleven labs not integrated except 2
