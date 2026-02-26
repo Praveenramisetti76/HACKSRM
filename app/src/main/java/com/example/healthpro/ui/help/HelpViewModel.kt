@@ -16,8 +16,10 @@ import com.example.healthpro.hospital.HospitalInfo
 import com.example.healthpro.location.LocationHelper
 import com.example.healthpro.sos.SOSManager
 import com.example.healthpro.sos.SosCallManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // ═══════════════════════════════════════════════════════════════
 // SOS State Machine
@@ -325,10 +327,23 @@ class HelpViewModel : ViewModel() {
 
     fun loadDeviceContacts() {
         isLoadingContacts = true
-        repository?.let {
-            deviceContacts = it.fetchDeviceContacts()
-            isLoadingContacts = false
-        }
+        repository?.let { repo ->
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val contacts = repo.fetchDeviceContacts()
+                    withContext(Dispatchers.Main) {
+                        deviceContacts = contacts
+                        isLoadingContacts = false
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error fetching contacts: ${e.message}")
+                    withContext(Dispatchers.Main) {
+                        errorMessage = "Failed to load device contacts. Please check permissions."
+                        isLoadingContacts = false
+                    }
+                }
+            }
+        } ?: run { isLoadingContacts = false }
     }
 
     fun toggleContactSelection(contactId: String) {
@@ -341,27 +356,48 @@ class HelpViewModel : ViewModel() {
 
     fun saveSelectedAsEmergencyContacts() {
         repository?.let { repo ->
-            val selected = deviceContacts.filter { it.id in selectedContacts }
-            selected.forEach { device ->
-                repo.addEmergencyContact(
-                    SavedContact(
-                        name = device.name,
-                        phoneNumber = device.phoneNumber,
-                        photoUri = device.photoUri
-                    )
-                )
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val selected = deviceContacts.filter { it.id in selectedContacts }
+                    selected.forEach { device ->
+                        repo.addEmergencyContact(
+                            SavedContact(
+                                name = device.name,
+                                phoneNumber = device.phoneNumber,
+                                photoUri = device.photoUri
+                            )
+                        )
+                    }
+                    val updatedContacts = repo.getEmergencyContacts()
+                    withContext(Dispatchers.Main) {
+                        emergencyContacts = updatedContacts
+                        selectedContacts = emptySet()
+                        searchQuery = ""
+                        showContactPicker = false
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error saving contacts: ${e.message}")
+                    withContext(Dispatchers.Main) {
+                        errorMessage = "Failed to save contacts."
+                    }
+                }
             }
-            emergencyContacts = repo.getEmergencyContacts()
-            selectedContacts = emptySet()
-            searchQuery = ""
-            showContactPicker = false
         }
     }
 
     fun removeEmergencyContact(contact: SavedContact) {
         repository?.let { repo ->
-            repo.removeEmergencyContact(contact)
-            emergencyContacts = repo.getEmergencyContacts()
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    repo.removeEmergencyContact(contact)
+                    val updatedContacts = repo.getEmergencyContacts()
+                    withContext(Dispatchers.Main) {
+                        emergencyContacts = updatedContacts
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error removing contact: ${e.message}")
+                }
+            }
         }
     }
 

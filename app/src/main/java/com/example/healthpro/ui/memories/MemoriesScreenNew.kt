@@ -92,13 +92,15 @@ fun MemoriesScreenNew(navController: NavController) {
             )
         }
         viewModel.selectedAlbum != null -> {
-            AlbumDetailScreen(
-                album = viewModel.selectedAlbum!!,
-                onBack = { viewModel.closeAlbum() },
-                onPhotoClick = { idx ->
-                    viewModel.startSlideShow(viewModel.selectedAlbum!!.photos, idx)
-                }
-            )
+            viewModel.selectedAlbum?.let { album ->
+                AlbumDetailScreen(
+                    album = album,
+                    onBack = { viewModel.closeAlbum() },
+                    onPhotoClick = { idx ->
+                        viewModel.startSlideShow(album.photos, idx)
+                    }
+                )
+            }
         }
         !viewModel.hasPhotosPermission -> {
             PhotosPermissionScreen(
@@ -666,11 +668,11 @@ private fun SlideShowScreen(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if (photo.placeName != null) {
+            photo.placeName?.let { place ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.LocationOn, null, tint = MemoriesPurple, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(photo.placeName!!, color = TextMuted, fontSize = 14.sp)
+                    Text(place, color = TextMuted, fontSize = 14.sp)
                 }
             }
         }

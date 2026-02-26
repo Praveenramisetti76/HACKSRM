@@ -29,4 +29,10 @@ interface MoodDao {
      */
     @Query("SELECT * FROM mood_entries ORDER BY timestamp DESC LIMIT :limit")
     suspend fun getLastMoods(limit: Int): List<MoodEntity>
+
+    /**
+     * Get the single most recent mood entry.
+     */
+    @Query("SELECT * FROM mood_entries ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getLatestMood(): MoodEntity?
 }

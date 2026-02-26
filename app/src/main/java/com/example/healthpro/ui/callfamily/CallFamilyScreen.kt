@@ -278,7 +278,7 @@ fun FamilyContactCard(
                         )
                     } else {
                         Text(
-                            text = contact.name.first().uppercase(),
+                            text = contact.name.firstOrNull()?.uppercase()?.toString() ?: "#",
                             style = MaterialTheme.typography.headlineMedium,
                             color = avatarColor,
                             fontWeight = FontWeight.Bold
@@ -604,7 +604,7 @@ fun ContactPickerScreen(
                                     )
                                 } else {
                                     Text(
-                                        text = contact.name.first().uppercase(),
+                                        text = contact.name.firstOrNull()?.uppercase()?.toString() ?: "#",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = avatarColors[colorIndex],
                                         fontWeight = FontWeight.Bold

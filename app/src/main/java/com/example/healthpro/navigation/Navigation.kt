@@ -25,10 +25,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.healthpro.auth.AuthPreferences
 import com.example.healthpro.auth.AuthScreenState
 import com.example.healthpro.auth.AuthViewModel
@@ -52,7 +54,9 @@ sealed class Screen(val route: String) {
     object Genie : Screen("genie")
     object FoodOrder : Screen("food_order")
     object CallFamily : Screen("call_family")
-    object Emergency : Screen("emergency")
+    object Emergency : Screen("emergency/{autoTrigger}") {
+        fun createRoute(autoTrigger: Boolean = false) = "emergency/$autoTrigger"
+    }
     object Inactivity : Screen("inactivity")
     object Settings : Screen("settings")
     object MedicineOrder : Screen("medicine_order")
@@ -90,6 +94,16 @@ fun SahayNavGraph() {
         Screen.Home.route
     } else {
         Screen.AuthEmail.route
+    }
+
+    // ── Observe always-listening Voice SOS events ──
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        com.example.healthpro.safety.VoiceSOSListenerService.sosEventFlow.collect { autoTrigger ->
+            navController.navigate(Screen.Emergency.createRoute(autoTrigger = autoTrigger)) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
     }
 
     // Auth screens should NOT show bottom bar
@@ -220,9 +234,18 @@ fun SahayNavGraph() {
                     // ─── Full Call Family module with contact picker ───
                     CallFamilyScreenNew(navController = navController)
                 }
-                composable(Screen.Emergency.route) {
+                composable(
+                    route = Screen.Emergency.route,
+                    arguments = listOf(
+                        navArgument("autoTrigger") {
+                            type = NavType.BoolType
+                            defaultValue = false
+                        }
+                    )
+                ) { backStackEntry ->
+                    val autoTrigger = backStackEntry.arguments?.getBoolean("autoTrigger") ?: false
                     // ─── Full Help/SOS module with emergency system ───
-                    HelpScreenNew(navController = navController)
+                    HelpScreenNew(navController = navController, autoTrigger = autoTrigger)
                 }
                 composable(Screen.Inactivity.route) {
                     InactivityScreen(navController = navController)

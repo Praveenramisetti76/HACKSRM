@@ -40,12 +40,21 @@ import com.example.healthpro.ui.theme.*
 // ════════════════════════════════════════════════════════════════════
 
 @Composable
-fun HelpScreenNew(navController: NavController) {
+fun HelpScreenNew(navController: NavController, autoTrigger: Boolean = false) {
     val viewModel: HelpViewModel = viewModel()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.init(context)
+    }
+
+    // ── Auto-trigger SOS from voice detection ──
+    LaunchedEffect(autoTrigger) {
+        if (autoTrigger && viewModel.phase == SOSPhase.IDLE) {
+            // Small delay to allow viewModel.init() to complete
+            kotlinx.coroutines.delay(500)
+            viewModel.triggerSOS()
+        }
     }
 
     // ── Permission gate ──
@@ -725,7 +734,7 @@ fun EmergencyContactRow(
                     .background(avatarColors[colorIndex].copy(alpha = 0.2f))
             ) {
                 Text(
-                    text = contact.name.first().uppercase(),
+                    text = contact.name.firstOrNull()?.uppercase()?.toString() ?: "#",
                     style = MaterialTheme.typography.titleMedium,
                     color = avatarColors[colorIndex],
                     fontWeight = FontWeight.Bold,
@@ -1026,10 +1035,10 @@ fun EmergencyActiveScreen(viewModel: HelpViewModel) {
                     icon = Icons.Default.LocationOn,
                     iconColor = Color(0xFF4ADE80),
                     title = "Live Location Shared",
-                    subtitle = if (viewModel.currentLocation != null) {
-                        "Lat: ${String.format("%.5f", viewModel.currentLocation!!.latitude)}, " +
-                                "Lng: ${String.format("%.5f", viewModel.currentLocation!!.longitude)}"
-                    } else "Fetching..."
+                    subtitle = viewModel.currentLocation?.let { loc ->
+                        "Lat: ${String.format("%.5f", loc.latitude)}, " +
+                                "Lng: ${String.format("%.5f", loc.longitude)}"
+                    } ?: "Fetching..."
                 )
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -1375,7 +1384,7 @@ fun EmergencyContactPickerScreen(
                                     )
                                 } else {
                                     Text(
-                                        text = contact.name.first().uppercase(),
+                                        text = contact.name.firstOrNull()?.uppercase()?.toString() ?: "#",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = avatarColors[colorIndex],
                                         fontWeight = FontWeight.Bold,

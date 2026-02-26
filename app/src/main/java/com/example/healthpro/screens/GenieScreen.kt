@@ -143,6 +143,20 @@ fun GenieScreen(navController: NavController, viewModel: GenieViewModel = viewMo
                 }
             }
 
+            GenieViewModel.GenieState.SOS_TRIGGERED -> {
+                // When emergency is triggered, tell the user, wait briefly, then navigate to SOS screen
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(1000)
+                    navController.navigate(Screen.Emergency.createRoute(true))
+                }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Emergency Protocol Activated\nTransferring to SOS...", 
+                         style = MaterialTheme.typography.titleLarge, 
+                         color = HelpRed, 
+                         textAlign = TextAlign.Center)
+                }
+            }
+
             GenieViewModel.GenieState.CONSENT_REQUIRED -> {
                 ConsentContent(
                     hasConsent = ConsentManager.hasConsent(context),

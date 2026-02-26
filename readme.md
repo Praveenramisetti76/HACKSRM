@@ -1,476 +1,233 @@
-<p align="center">
-  <img src="./assets/banner.png" alt="SAHAY Banner" width="100%"/>
-</p>
+# SAHAY – AI-Powered Android Launcher for Elderly Safety & Independence
 
-<h1 align="center">SAHAY – AI-Powered Android Companion for Elderly Safety & Independence</h1>
+![SAHAY Banner](./assets/banner.png)
 
-<p align="center">
-  <em>Making smartphones simple, safe, and stress-free for senior citizens</em>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
-  <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin"/>
-  <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Compose"/>
-  <img src="https://img.shields.io/badge/Architecture-MVVM-FF6F00?style=for-the-badge" alt="MVVM"/>
-  <img src="https://img.shields.io/badge/Min%20SDK-24-brightgreen?style=for-the-badge" alt="API 24+"/>
-  <img src="https://img.shields.io/badge/Storage-DataHaven-8B5CF6?style=for-the-badge" alt="DataHaven"/>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/99%20Kotlin%20Files-19K%2B%20Lines%20of%20Code-informational?style=flat-square" alt="LOC"/>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/>
-</p>
+> **SAHAY** is an AI-powered Android launcher designed specifically for elderly users to make smartphones **simple, safe, and stress-free**. It provides a **big-button interface, voice-first interaction, and passive emergency monitoring** to improve independence, safety, and emotional well-being.
 
 ---
 
-## 📋 Table of Contents
+## 🌟 Problem Statement
 
-- [The Problem](#-the-problem)
-- [Our Solution](#-our-solution--sahay)
-- [Key Features](#-key-features)
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [DataHaven Integration](#-datahaven--decentralized-medical-storage)
-- [Security & Privacy](#-security--privacy)
-- [Screenshots](#-screenshots)
-- [Team](#-team)
-- [License](#-license)
+Modern smartphone interfaces are:
 
----
+- Too complex
+- Full of small buttons
+- Hard to navigate
+- Difficult for elders with weak eyesight, arthritis, or low tech literacy
 
-## 😟 The Problem
+This results in:
 
-Over **140 million** senior citizens in India struggle with modern smartphones. The challenges are real:
-
-| Pain Point | Impact |
-|:--|:--|
-| 🔤 Tiny text & buttons | Frustration, misclicks, anxiety |
-| 🧩 Complex navigation | Dependence on family members |
-| 🚨 No passive safety | Falls and emergencies go undetected |
-| 💊 Medication management | Missed doses, health risks |
-| 😔 Digital isolation | Loneliness, reduced confidence |
-
-> *"My grandmother can't even call us without help. She's afraid of touching the wrong button."*
+- Dependence on others
+- Reduced confidence
+- Isolation
+- Anxiety
+- Safety risks
 
 ---
 
-## 💡 Our Solution — SAHAY
+## 🚀 Solution – What is SAHAY?
 
-**SAHAY** (meaning *"companion"* in Hindi) replaces the default Android experience with an **elder-first, voice-powered, safety-aware** interface.
+**SAHAY** replaces the default Android launcher with a **simple, high-contrast, voice-controlled interface** specially designed for senior citizens.
 
-### 🏛️ Four Pillars
+### Core Pillars
 
-| Pillar | What It Does |
-|:--|:--|
-| 🧠 **Simplicity** | Big buttons, high contrast, minimal choices — designed for weak eyesight & arthritis |
-| 🎤 **Voice Autonomy** | AI assistant (Genie) performs tasks through natural speech |
-| 🛡️ **Passive Safety** | 24/7 inactivity monitoring, fall detection, automatic SOS alerts |
-| ❤️ **Emotional Well-being** | One-tap family calls, photo memories, daily mood check-ins |
+- 🧠 **Simplicity** – Large buttons, minimal choices
+- 🎤 **Voice Autonomy** – AI assistant to perform tasks
+- 🚨 **Passive Safety** – Smart inactivity monitoring + SOS system
+- ❤️ **Emotional Well-being** – Easy family communication & memories
 
 ---
 
-## ✨ Key Features
+## 📱 Key Features
 
-### 🏠 1. Big Button Home Screen
-A clean, high-contrast launcher with **6 large feature cards**, time display, and personalized greeting. No clutter. No confusion.
+### 1. Big Button Home Screen
 
-> **One glance. One tap. Done.**
+- Huge, high-contrast buttons
+- One-tap access to essential functions
 
-### 🤖 2. Genie — Voice AI Companion
-The centerpiece of SAHAY. Users simply **speak** instead of navigating.
+**Main Actions:**
 
-```
-"Call my grandson"          → Initiates phone/WhatsApp call
-"I want to eat pasta"       → Opens Swiggy/Zomato with search
-"Book me a cab to hospital" → Opens Uber/Ola with destination
-"Order my BP medicine"      → Searches Apollo/1mg pharmacy apps
-"How am I feeling today?"   → Opens mood check-in
-```
-
-**How it works:**
-
-```
-🎤 Voice Input → Speech-to-Text → AI Intent Engine → Action Router → Execute
-```
-
-- Uses `SpeechRecognizer` for on-device voice capture
-- AI-powered intent detection with configurable flow configs
-- Accessibility Service for deep app automation (auto-search, auto-navigate)
-- Supports **call, food, cab, medicine, emergency** intents
-
-### 🛡️ 3. Guardian Angel — Passive Safety System
-Runs silently in the background. No interaction needed from the elder.
-
-| Trigger | Action |
-|:--|:--|
-| No phone activity for **6 hours** | Voice prompt: *"Are you okay?"* |
-| No response in **60 seconds** | SOS alert + live GPS to family |
-| **Fall detected** via accelerometer | Immediate emergency protocol |
-| User presses **SOS button** | 45-sec countdown → Call + SMS + WhatsApp alert |
-
-**Sensors Used:** Accelerometer, gyroscope, screen unlock events, app interaction patterns
-
-### 🚨 4. Emergency SOS
-- Dedicated full-screen emergency page
-- **Big red SOS button** with 45-second countdown
-- Automatically sends: **Phone call** + **SMS with GPS** + **WhatsApp alert**
-- Finds and displays **nearby hospitals** using Google Maps API
-
-### 💊 5. Medicine Manager
-A complete medication management system:
-
-| Feature | Description |
-|:--|:--|
-| 📋 **Medicine List** | Add, edit, track all medications |
-| ⏰ **Smart Reminders** | WorkManager-based notifications that never miss |
-| 📸 **Prescription Vault** | Camera capture + OCR scanning (ML Kit) |
-| 📊 **Intake Tracker** | Daily dose logging with visual progress |
-| 🔄 **Auto-Reorder** | Low stock alerts + pharmacy deep-linking (Apollo, 1mg, Netmeds) |
-| 📈 **Stock Monitoring** | Background workers track remaining pills |
-| 🔗 **DataHaven Storage** | Decentralized, tamper-proof prescription backup |
-
-### 😊 6. Mood Check-In System
-- Daily mood tracking at scheduled times
-- Warm, empathetic prompts (not robotic)
-- Mood history and analytics via Room DB
-- Boot receiver ensures scheduling persists across restarts
-
-### 📞 7. Call Family
-- One-tap calling to saved family contacts
-- WhatsApp video call integration
-- Contact management with favorites
-
-### 📸 8. Memories Gallery
-- Beautiful photo gallery with EXIF-based organization
-- Photo albums from device storage
-- Emotional well-being through nostalgia
-
-### 🍔 9. Food & Cabs
-- Quick access to Swiggy & Zomato
-- Voice-powered ordering through Genie
-- Simplified interface for common tasks
+- 📞 Call Family
+- 📸 Memories
+- 🍔 Food & Cabs
+- 🚑 Help (SOS)
+- 🎤 Genie (Voice Assistant)
 
 ---
 
-## 🛠️ Tech Stack
+### 2. Genie – Voice AI Companion
 
-### 📱 Android App
+Users can simply speak instead of typing.
 
-| Technology | Purpose |
-|:--|:--|
-| **Kotlin** | Primary language |
-| **Jetpack Compose** | Modern declarative UI |
-| **Material 3** | Design system with custom theming |
-| **MVVM Architecture** | Clean separation of concerns |
-| **Room Database** | Local data persistence (medicines, mood, prescriptions) |
-| **WorkManager** | Reliable background tasks (reminders, stock checks, mood) |
-| **Retrofit + OkHttp** | Network communication with backend |
-| **ML Kit OCR** | Prescription text recognition |
-| **Coil** | Efficient image loading |
-| **Navigation Compose** | Type-safe screen navigation |
-| **AccessibilityService** | Deep app automation for Genie |
+**Examples:**
 
-### 🖥️ Backend (DataHaven Service)
+- "Call my grandson"
+- "I want to eat pasta"
+- "Book me a cab to hospital"
 
-| Technology | Purpose |
-|:--|:--|
-| **Node.js + TypeScript** | Server runtime |
-| **Express** | REST API framework |
-| **StorageHub SDK** | DataHaven blockchain interaction |
-| **Polkadot API** | On-chain state queries |
-| **Viem** | Wallet management & transactions |
-| **Multer** | File upload handling |
-| **Winston** | Structured logging |
+**Flow:**
 
-### 🔌 APIs & Services
-
-| Service | Usage |
-|:--|:--|
-| **Google Maps API** | Hospital finder, GPS location |
-| **ML Kit Text Recognition** | Prescription OCR |
-| **DataHaven Network** | Decentralized medical document storage |
-| **Android SpeechRecognizer** | On-device voice-to-text |
+Speech → AI Understanding → Intent Detection → Action Execution
 
 ---
 
-## 🏗️ Architecture
+### 3. Guardian Angel – Passive Safety System
 
-### System Architecture
+Monitors inactivity using:
+
+- Motion sensors
+- Screen unlock events
+- App interaction
+
+**Logic:**
+
+If no activity for **6 hours** →
+
+- Voice prompt: *"Grandpa, are you okay?"*
+- Wait 60 seconds
+- If no response → Send **SOS alert + live location** to family
+
+---
+
+### 4. Emergency SOS
+
+- Dedicated emergency screen
+- Big SOS button
+- 45-second countdown
+- Automatic call + SMS + WhatsApp alert
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend (Android)
+
+- Kotlin
+- Android Studio
+- Jetpack Compose
+- MVVM Architecture
+
+### Backend (Design)
+
+- FastAPI / Node.js
+- Secure APIs
+- AI intent routing
+
+### AI & Services
+
+- Google Gemini API / OpenAI Whisper
+- Twilio (SMS & Calls)
+- WhatsApp Business API
+- Google Maps API (Location)
+
+---
+
+## 🏗 System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     SAHAY Android App                        │
-│                                                             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │  Compose  │  │ ViewModels│  │   Room   │  │WorkManager│   │
-│  │    UI     │←→│  (MVVM)  │←→│ Database │  │ Workers  │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
-│       ↑              ↑                           ↑          │
-│  ┌──────────┐  ┌──────────┐              ┌──────────┐      │
-│  │Navigation│  │Repositories│             │ Sensors  │      │
-│  └──────────┘  └──────────┘              └──────────┘      │
-│                      ↑                                      │
-│              ┌───────┴────────┐                             │
-│              │  Retrofit API  │                             │
-│              └───────┬────────┘                             │
-└──────────────────────┼──────────────────────────────────────┘
-                       ↓
-            ┌─────────────────────┐
-            │  DataHaven Backend  │
-            │  (Express + TS)     │
-            └─────────┬───────────┘
-                      ↓
-            ┌─────────────────────┐
-            │  DataHaven Network  │
-            │  (Decentralized     │
-            │   Storage)          │
-            └─────────────────────┘
-```
-
-### Voice AI Pipeline (Genie)
-
-```
-🎤 User Voice
+User Voice
     ↓
-📝 Android SpeechRecognizer (on-device)
+Speech-to-Text
     ↓
-🧠 Intent Parser (keyword + pattern matching)
+AI Intent Engine
     ↓
-⚡ Action Router
+Action Router
     ↓
-┌────────┬──────────┬──────────┬──────────┬──────────┐
-│  Call  │  Food    │  Cab     │ Medicine │   SOS    │
-│ Family │ Swiggy/  │ Uber/    │ Apollo/  │Emergency │
-│        │ Zomato   │ Ola      │ 1mg      │  Alert   │
-└────────┴──────────┴──────────┴──────────┴──────────┘
+Mobile Services → Call | Food | Cab | SOS
 ```
+
+---
+
+## 🔐 Security & Privacy
+
+- No permanent voice data storage
+- No continuous location tracking
+- Runtime permission handling
+- Encrypted API communication
+- No hardcoded API keys
 
 ---
 
 ## 📂 Project Structure
 
 ```
-Saathi/
-├── app/
-│   ├── src/main/
-│   │   ├── AndroidManifest.xml
-│   │   ├── java/com/example/healthpro/
-│   │   │   ├── MainActivity.kt                    # Entry point
-│   │   │   ├── auth/                              # 🔐 Authentication
-│   │   │   │   ├── AuthPreferences.kt             #   Shared prefs for session
-│   │   │   │   ├── AuthRepository.kt              #   Auth data layer
-│   │   │   │   ├── AuthViewModel.kt               #   Auth state management
-│   │   │   │   ├── OtpManager.kt                  #   OTP generation/validation
-│   │   │   │   └── ui/                            #   Email, OTP, Name screens
-│   │   │   ├── database/                          # 💾 Room Database
-│   │   │   │   ├── SahayDatabase.kt               #   Main database
-│   │   │   │   ├── Daos.kt                        #   Data access objects
-│   │   │   │   └── MedicineEntity.kt              #   Medicine data model
-│   │   │   ├── genie/                             # 🤖 AI Voice Assistant
-│   │   │   │   ├── GenieViewModel.kt              #   Voice interaction logic
-│   │   │   │   ├── GenieIntentParser.kt           #   NLP intent detection
-│   │   │   │   ├── GenieAccessibilityService.kt   #   Deep app automation
-│   │   │   │   ├── PlatformLauncher.kt            #   App launching engine
-│   │   │   │   ├── FlowConfigManager.kt           #   Action flow configs
-│   │   │   │   ├── ConsentManager.kt              #   User consent handling
-│   │   │   │   └── FeatureFlags.kt                #   Feature toggles
-│   │   │   ├── medicine/                          # 💊 Medicine Management
-│   │   │   │   ├── data/db/                       #   Room entities + DAOs
-│   │   │   │   ├── data/pharmacy/                 #   Apollo, 1mg, providers
-│   │   │   │   ├── data/repository/               #   Medicine data layer
-│   │   │   │   ├── domain/model/                  #   Domain models
-│   │   │   │   ├── ocr/                           #   ML Kit OCR processing
-│   │   │   │   ├── reminders/                     #   Notification scheduling
-│   │   │   │   ├── ui/                            #   Compose UI screens
-│   │   │   │   ├── vault/                         #   Prescription storage
-│   │   │   │   ├── viewmodel/                     #   State management
-│   │   │   │   └── workers/                       #   Background stock checks
-│   │   │   ├── mood/                              # 😊 Mood Tracking
-│   │   │   │   ├── MoodCheckInDialog.kt           #   Check-in UI
-│   │   │   │   ├── MoodCheckInViewModel.kt        #   State management
-│   │   │   │   ├── MoodDao.kt / MoodEntity.kt    #   Room persistence
-│   │   │   │   └── MoodCheckInWorker.kt           #   Scheduled prompts
-│   │   │   ├── safety/                            # 🛡️ Safety Monitoring
-│   │   │   │   ├── SafetyMonitoringService.kt     #   Foreground service
-│   │   │   │   ├── MotionTracker.kt               #   Accelerometer tracking
-│   │   │   │   ├── InactivityManager.kt           #   Activity timeout logic
-│   │   │   │   ├── VoiceCheckManager.kt           #   "Are you okay?" system
-│   │   │   │   └── SafetyViewModel.kt             #   UI state
-│   │   │   ├── sos/                               # 🚨 Emergency SOS
-│   │   │   │   ├── SOSManager.kt                  #   Alert orchestration
-│   │   │   │   └── SosCallManager.kt              #   Call + SMS + WhatsApp
-│   │   │   ├── hospital/                          # 🏥 Hospital Finder
-│   │   │   ├── location/                          # 📍 GPS Services
-│   │   │   ├── navigation/                        # 🗺️ Compose Navigation
-│   │   │   ├── screens/                           # 📱 Main Screens
-│   │   │   │   ├── HomeScreen.kt                  #   Launcher home
-│   │   │   │   ├── EmergencyScreen.kt             #   SOS page
-│   │   │   │   ├── GenieScreen.kt                 #   Voice assistant
-│   │   │   │   ├── SettingsScreen.kt              #   App settings
-│   │   │   │   └── ...                            #   Food, Medicine, etc.
-│   │   │   └── ui/theme/                          # 🎨 Design System
-│   │   └── res/                                   # Resources & assets
-│   └── build.gradle.kts                           # App dependencies
-├── saathi-datahaven-backend/                      # 🔗 DataHaven Backend
-│   ├── src/
-│   │   ├── index.ts                               #   Express server
-│   │   ├── config/                                #   Network & logger config
-│   │   ├── services/                              #   Client & MSP services
-│   │   ├── operations/                            #   Bucket & file operations
-│   │   └── routes/                                #   API endpoints
-│   └── package.json
-├── build.gradle.kts                               # Root Gradle config
-├── settings.gradle.kts
-└── readme.md
+SAHAY/
+ ├── app/
+ │    ├── ui/              # Jetpack Compose UI
+ │    ├── viewmodel/       # MVVM logic
+ │    ├── services/        # Background + SOS services
+ │    ├── voice/           # Voice processing
+ │    ├── emergency/       # SOS handling
+ │    └── utils/
+ ├── backend/              # API design (optional)
+ └── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🧪 How to Run
 
-### Prerequisites
-
-- **Android Studio** Koala or later
-- **JDK 11+**
-- **Android Device** (recommended) or Emulator (API 24+)
-- **Node.js 18+** and **pnpm** (for DataHaven backend)
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/Praveenramisetti76/HACKSRM.git
-cd HACKSRM
-```
-
-### 2. Open in Android Studio
-
-1. Open Android Studio → **Open** → Select the project folder
-2. Wait for Gradle sync to complete
-3. Connect a physical Android device (recommended for sensors & voice)
-4. Click **Run ▶️**
-
-### 3. Setup DataHaven Backend (Optional)
-
-```bash
-cd saathi-datahaven-backend
-pnpm install
-cp .env.example .env
-# Add your wallet private key to .env
-pnpm dev
-```
-
-Backend starts at `http://localhost:3001`
-
-### 4. Required Permissions
-
-On first launch, SAHAY will request:
-- 📍 Location (SOS & hospital finder)
-- 🎤 Microphone (Genie voice assistant)
-- 📞 Phone & Contacts (family calling)
-- 📸 Camera (prescription scanning)
-- 🔔 Notifications (medicine reminders)
+1. Clone the repository
+2. Open in **Android Studio**
+3. Sync Gradle
+4. Run on real Android device (recommended for sensors & voice)
 
 ---
 
-## 🔗 DataHaven — Decentralized Medical Storage
+## 🎯 Hackathon Alignment
 
-SAHAY integrates with **[DataHaven](https://datahaven.xyz)** for tamper-proof, decentralized prescription storage.
+### Human Connection
 
-### Why DataHaven?
+- One-tap family calls
+- Memories gallery
 
-- 🔒 **Encrypted & Decentralized** — No single point of failure
-- ✅ **On-chain Verification** — Every upload is cryptographically verified
-- 👨‍👩‍👧 **Family Access** — Prescriptions can be shared with caregivers
-- 🏥 **Portable** — Medical records travel with the patient
+### Communication
 
-### Upload Flow
+- Voice-first interface
 
-```
-📸 Scan Prescription (Camera/Gallery)
-    ↓
-📱 Android sends file to Backend
-    ↓
-🔐 Backend uploads to DataHaven Network
-    ↓
-⛓️ On-chain storage request confirmed
-    ↓
-📦 MSP stores encrypted file
-    ↓
-🔑 File ID returned to Android
-    ↓
-💾 Stored in local Room DB
-```
+### Emotional Well-being
 
-### API Endpoints
-
-| Method | Endpoint | Description |
-|:--|:--|:--|
-| `GET` | `/api/health` | Backend + MSP health check |
-| `POST` | `/api/initBucket` | Initialize storage bucket (once) |
-| `POST` | `/api/uploadPrescription` | Upload prescription file |
-| `GET` | `/api/getPrescription/:id` | Download prescription |
-| `GET` | `/api/prescriptions` | List all stored prescriptions |
+- Independence in daily tasks
+- Reduced anxiety
+- Safety assurance
 
 ---
 
-## 🔐 Security & Privacy
+## 🏆 Why SAHAY is Different
 
-| Principle | Implementation |
-|:--|:--|
-| 🔑 **No keys on device** | Blockchain private keys stay on backend only |
-| 🎤 **No voice storage** | Speech processed on-device, never stored |
-| 📍 **No continuous tracking** | Location accessed only during SOS events |
-| 🔒 **Runtime permissions** | Every permission requested with clear context |
-| 🛡️ **Encrypted APIs** | HTTPS for all network communication |
-| 📦 **Decentralized storage** | Medical docs on DataHaven, not centralized servers |
-| 🚫 **No hardcoded secrets** | API keys via environment variables |
+- Built as **Android Launcher** not just an app
+- Passive emergency monitoring
+- AI-based intent understanding
+- Elder-first UX design
+- High social impact
 
 ---
 
-## 📸 Screenshots
+## 📸 UI Preview
 
-> *Coming soon — UI screenshots and demo video*
-
----
-
-## 🏆 Why SAHAY Stands Out
-
-| Feature | SAHAY | Regular Launchers | Health Apps |
-|:--|:--:|:--:|:--:|
-| Elder-first UI design | ✅ | ❌ | ❌ |
-| Voice-powered everything | ✅ | ❌ | ❌ |
-| Passive fall detection | ✅ | ❌ | ⚠️ |
-| Inactivity monitoring | ✅ | ❌ | ❌ |
-| Medicine OCR + reminders | ✅ | ❌ | ⚠️ |
-| Decentralized medical storage | ✅ | ❌ | ❌ |
-| Mood tracking | ✅ | ❌ | ⚠️ |
-| One-tap SOS with GPS | ✅ | ❌ | ⚠️ |
-| Deep app automation | ✅ | ❌ | ❌ |
+> Add UI mockups/screenshots here
 
 ---
 
 ## 🤝 Team
 
-**Project:** SAHAY — *Bridging the Digital Divide for Senior Citizens*
-
-**Hackathon:** HackSRM 7.0
+- **Project Name:** SAHAY
+- **Theme:** Bridging the Digital Divide
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License**.
 
 ---
 
-<p align="center">
-  <br/>
-  <strong>SAHAY</strong> is built to give elders what they deserve:
-  <br/><br/>
-  <em>✨ Freedom · 🛡️ Safety · 💪 Confidence · 🤝 Dignity ✨</em>
-  <br/><br/>
-  <img src="https://img.shields.io/badge/Made%20with-❤️-red?style=for-the-badge" alt="Love"/>
-</p>
+## ❤️ Final Note
+
+**SAHAY** is built to give elders:
+
+> **Freedom. Safety. Confidence. Dignity.**
+
+---
+
+# End of README
